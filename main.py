@@ -1,6 +1,7 @@
 import requests
 import selectorlib
 import smtplib, ssl
+import logs as logins
 
 URL = "http://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
@@ -38,9 +39,9 @@ def readText():
 
 
 def send_mail(msg):
-    sender = "addmarful@gmail.com"
-    password = "oahpsbkyqzydoipl"
-    receiver = "addmarful@gmail.com"
+    sender = logins.mailMe()
+    password = logins.passMe()
+    receiver = logins.mailMe()
 
     context = ssl.create_default_context()
     host = "smtp.gmail.com"
