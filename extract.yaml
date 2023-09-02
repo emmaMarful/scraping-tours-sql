@@ -1,0 +1,7 @@
+
+tour:
+  css: '#displaytimer'
+
+
+nextTour:
+  css: 'body > div.container > div > h1:nth-child(2)'
