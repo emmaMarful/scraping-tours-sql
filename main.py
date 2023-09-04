@@ -2,10 +2,13 @@ import requests
 import selectorlib
 import smtplib, ssl
 import logs as logins
+import sqlite3
 
 URL = "http://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+connection = sqlite3.connect("data.db")
 
 
 def scrape(url):
@@ -24,18 +27,42 @@ def extract(source):
     return value
 
 
+'''
 def writeText(text):
     filepath = "data.txt"
     with open(filepath, "a") as file:
         file.write(text + "\n")
+'''
 
 
+def writeData(data):
+    row = data.split(",")
+    row = [i.strip() for i in row]
+    writeCursor = connection.cursor()
+    writeCursor.execute("INSERT INTO events VALUES(?,?,?)", row)
+    connection.commit()
+
+
+'''
 def readText():
     filepath = "data.txt"
     with open(filepath, 'r') as fileRead:
         readME = fileRead.read()
 
     return readME
+'''
+
+
+def readData(extractMe):
+    row = extractMe.split(",")
+    row = [i.strip() for i in row]
+    band, city, date = row
+    readCursor = connection.cursor()
+    readCursor.execute("SELECT * FROM events WHERE band=? AND city=? AND date=?", (band, city, date))
+    fetchRow = readCursor.fetchall()
+    print(fetchRow)
+
+    return fetchRow
 
 
 def send_mail(msg):
@@ -63,10 +90,11 @@ def send_mail(msg):
 if __name__ == "__main__":
     scr = scrape(URL)
     ext = extract(scr)
-    readCom = readText()
     print(f'Next Tour: {ext}')
 
-    if ext != "No upcoming tours" and ext not in readCom:
-        # print(f'Next Tour: {ext}')
-        writeText(ext)
-        send_mail(ext)
+    if ext != "No upcoming tours":
+        readCom = readData(ext)
+        if not readCom:
+            # print(f'Next Tour: {ext}')
+            writeData(ext)
+            send_mail(ext)
